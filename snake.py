@@ -6,19 +6,20 @@ turtle.tracer(1,0)
 SIZE_X=800
 SIZE_Y=500
 turtle.setup(SIZE_X, SIZE_Y)
+turtle.bgcolor("blue")
+
 
 turtle.penup()
 
 SQUARE_SIZE = 20
-START_LENGTH = 4
+START_LENGTH = 6
 pos_list = []
 stamp_list = []
 food_pos = []
-
 food_stamps = []
 turtle.hideturtle()
 snake = turtle.clone()
-snake.shape("triangle")
+snake.shape("circle")
 turtle.hideturtle()
 pos = snake.pos()
 for i in range(START_LENGTH):
@@ -27,7 +28,6 @@ for i in range(START_LENGTH):
     x_pos+=SQUARE_SIZE
     my_pos=(x_pos,y_pos)
     snake.goto(my_pos[0],my_pos[1])
-    stamp_list.append(my_pos)
     stamp = snake.stamp()
     stamp_list.append(stamp)
     pos_list.append(my_pos)
@@ -43,10 +43,22 @@ DOWN = 1
 LEFT = 2
 RIGHT = 3
 direction = UP
-TOP_EDGE = 250
-BOTTOM_EDGE = -250
-RIGHT_EDGE = 400
-LEFT_EDGE = -400
+TOP_EDGE = SIZE_Y/2
+BOTTOM_EDGE = SIZE_Y/-2
+RIGHT_EDGE = SIZE_X/2
+LEFT_EDGE = SIZE_X/-2
+
+border = turtle.clone()
+border.hideturtle()
+border.penup()
+border.goto(LEFT_EDGE, BOTTOM_EDGE)
+border.pendown()
+border.goto(RIGHT_EDGE, BOTTOM_EDGE)
+border.goto(RIGHT_EDGE, TOP_EDGE)
+border.goto(LEFT_EDGE, TOP_EDGE)
+border.pendown()
+
+border.goto(LEFT_EDGE, BOTTOM_EDGE)
 
 turtle.register_shape("trash.gif")
 food = turtle.clone()
@@ -78,15 +90,16 @@ turtle.onkeypress(right, RIGHT_ARROW)
 turtle.onkeypress(left, LEFT_ARROW)
 turtle.listen()
 def make_food():
+    
     min_x=-int(SIZE_X/2/SQUARE_SIZE)+1
     max_x=int(SIZE_X/2/SQUARE_SIZE)-1
-    min_y=-int(SIZE_Y/2/SQUARE_SIZE)-1
-    max_y=int(SIZE_Y/2/SQUARE_SIZE)+1
+    min_y=-int(SIZE_Y/2/SQUARE_SIZE)+1
+    max_y=int(SIZE_Y/2/SQUARE_SIZE)-1
     food_x = random.randint(min_x,max_x)*SQUARE_SIZE
     food_y = random.randint(min_y,max_y)*SQUARE_SIZE
-    random_pos = (food_x,food_y)
-    food.goto(food_x, food_y)
     
+    food.goto(food_x, food_y)
+    random_pos = (food_x, food_y)
     food_pos.append(random_pos)
     stamp_id=food.stamp()
     food_stamps.append(stamp_id)
@@ -100,6 +113,12 @@ def move_snake():
         food_stamps.pop(food_ind)
         print("You have eaten the food!")
         make_food()
+    else:
+        # removes the tail
+        old_stamp = stamp_list.pop(0)
+        snake.clearstamp(old_stamp)
+        pos_list.pop(0)
+    
     my_pos = snake.pos()
     x_pos = my_pos[0]
     y_pos = my_pos[1]
@@ -116,17 +135,12 @@ def move_snake():
     elif direction==DOWN:
       snake.goto(x_pos, y_pos - SQUARE_SIZE)
       print("You moved down!")
-    
+
+    # makes a new head
     my_pos=snake.pos()
     pos_list.append(my_pos)
     new_stamp = snake.stamp()
     stamp_list.append(new_stamp)
-
-    old_stamp = stamp_list.pop(0)
-    snake.clearstamp(old_stamp)
-    pos_list.pop(0)
-
-
 
     new_pos = snake.pos()
     new_x_pos = new_pos[0]
